@@ -59,11 +59,14 @@ type Shell struct {
 	progressBar       ProgressBar
 	pager             string
 	pagerArgs         []string
+	Pathlist          []string //保存文件列表
 	contextValues
 	Actions
 }
 
 // New creates a new shell with default settings. Uses standard output and default prompt ">> ".
+
+// 初始化ishell结构体
 func New() *Shell {
 	return NewWithConfig(&readline.Config{Prompt: defaultPrompt})
 }
@@ -80,11 +83,12 @@ func NewWithConfig(conf *readline.Config) *Shell {
 }
 
 // NewWithReadline creates a new shell with a custom readline instance.
+//	构造一个shell
 func NewWithReadline(rl *readline.Instance) *Shell {
 	shell := &Shell{
 		rootCmd: &Cmd{},
 		reader: &shellReader{
-			scanner:     rl,
+			scanner:     rl, //终端输入
 			prompt:      rl.Config.Prompt,
 			multiPrompt: defaultMultiPrompt,
 			showPrompt:  true,
@@ -717,4 +721,14 @@ func getPosition() (int, int, error) {
 	}
 
 	return col, row, nil
+}
+
+func (s *Shell) AddPathlist(pathlist []string) {
+	//s.Pathlist = pathlist
+	s.reader.scanner.Terminal.AddPathlist(pathlist)
+}
+
+func (s *Shell) SetTabPath(pathlist []string) {
+	config := s.reader.scanner.Config.Clone()
+	s.reader.scanner, _ = readline.NewEx1(config, pathlist)
 }

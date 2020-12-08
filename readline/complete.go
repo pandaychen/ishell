@@ -5,6 +5,8 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+
+	"github.com/manifoldco/promptui"
 )
 
 type AutoCompleter interface {
@@ -36,6 +38,8 @@ type opCompleter struct {
 	candidateOff    int
 	candidateChoise int
 	candidateColNum int
+
+	Pathlist []string
 }
 
 func newOpCompleter(w io.Writer, op *Operation, width int) *opCompleter {
@@ -44,6 +48,11 @@ func newOpCompleter(w io.Writer, op *Operation, width int) *opCompleter {
 		op:    op,
 		width: width,
 	}
+}
+
+func (o *opCompleter) SetTabFilePath(filepathlist []string) {
+	//need a lock
+	o.Pathlist = filepathlist
 }
 
 func (o *opCompleter) doSelect() {
@@ -86,6 +95,22 @@ func (o *opCompleter) OnComplete() bool {
 	o.candidateSource = rs
 	newLines, offset := o.op.cfg.AutoComplete.Do(rs, buf.idx)
 	if len(newLines) == 0 {
+		// 行尾的tab键触发逻辑
+		//buf.WriteRunes([]rune{97,98,99,100,101,102,103,104})
+		//pathlist := []string{"/etc/ssh/", "/etc/ssh/ca.pub", "/etc/ssh/ca.pub2"}
+		prompt := promptui.Select{
+			Label: "Select Your Worker file",
+			Items: o.Pathlist,
+			Size:  50,
+		}
+
+		_, res, err := prompt.Run()
+		if err != nil {
+			o.ExitCompleteMode(false)
+			return true
+		}
+
+		buf.WriteRunes([]rune(res))
 		o.ExitCompleteMode(false)
 		return true
 	}

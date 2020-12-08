@@ -66,7 +66,7 @@ func (w *wrapWriter) Write(b []byte) (int, error) {
 	return n, err
 }
 
-func NewOperation(t *Terminal, cfg *Config) *Operation {
+func NewOperation(t *Terminal, cfg *Config, pathlist []string) *Operation {
 	width := cfg.FuncGetWidth()
 	op := &Operation{
 		t:       t,
@@ -85,6 +85,9 @@ func NewOperation(t *Terminal, cfg *Config) *Operation {
 		op.opSearch.OnWidthChange(newWidth)
 		op.buf.OnWidthChange(newWidth)
 	})
+	if len(pathlist) != 0 {
+		op.opCompleter.SetTabFilePath(pathlist)
+	}
 	go op.ioloop()
 	return op
 }

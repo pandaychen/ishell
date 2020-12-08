@@ -21,7 +21,7 @@ import "io"
 
 type Instance struct {
 	Config    *Config
-	Terminal  *Terminal
+	Terminal  *Terminal //包含了一个终端
 	Operation *Operation
 }
 
@@ -81,6 +81,9 @@ type Config struct {
 	inited    bool
 	opHistory *opHistory
 	opSearch  *opSearch
+
+	//补全文件列表
+	Pathlist []string
 }
 
 func (c *Config) useInteractive() bool {
@@ -159,12 +162,34 @@ func (c *Config) SetPainter(p Painter) {
 	c.Painter = p
 }
 
+//根据config配置构建一个terminal
 func NewEx(cfg *Config) (*Instance, error) {
 	t, err := NewTerminal(cfg)
 	if err != nil {
 		return nil, err
 	}
+
+	//调用terminal.Readline构建一个本地输入终端
 	rl := t.Readline()
+	if cfg.Painter == nil {
+		cfg.Painter = &defaultPainter{}
+	}
+	return &Instance{
+		Config:    cfg,
+		Terminal:  t,
+		Operation: rl,
+	}, nil
+}
+
+//根据config配置构建一个terminal
+func NewEx1(cfg *Config, pathlist []string) (*Instance, error) {
+	t, err := NewTerminal(cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	//调用terminal.Readline构建一个本地输入终端
+	rl := t.Readline1(pathlist)
 	if cfg.Painter == nil {
 		cfg.Painter = &defaultPainter{}
 	}

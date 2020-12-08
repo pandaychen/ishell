@@ -19,6 +19,7 @@ type Terminal struct {
 	wg        sync.WaitGroup
 	isReading int32
 	sleeping  int32
+	PathList  []string
 
 	sizeChan chan string
 }
@@ -33,6 +34,7 @@ func NewTerminal(cfg *Config) (*Terminal, error) {
 		outchan:  make(chan rune),
 		stopChan: make(chan struct{}, 1),
 		sizeChan: make(chan string, 1),
+		PathList: make([]string, 0),
 	}
 
 	go t.ioloop()
@@ -92,7 +94,15 @@ func (t *Terminal) PrintRune(r rune) {
 }
 
 func (t *Terminal) Readline() *Operation {
-	return NewOperation(t, t.cfg)
+	return NewOperation(t, t.cfg, t.PathList)
+}
+
+func (t *Terminal) Readline1(pathlist []string) *Operation {
+	return NewOperation(t, t.cfg, pathlist)
+}
+
+func (t *Terminal) AddPathlist(pathlist []string) {
+	t.PathList = pathlist
 }
 
 // return rune(0) if meet EOF
