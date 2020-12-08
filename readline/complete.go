@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/manifoldco/promptui"
 )
@@ -43,16 +44,21 @@ type opCompleter struct {
 }
 
 func newOpCompleter(w io.Writer, op *Operation, width int) *opCompleter {
+	fmt.Println("once")
 	return &opCompleter{
-		w:     w,
-		op:    op,
-		width: width,
+		w:        w,
+		op:       op,
+		width:    width,
+		Pathlist: make([]string, 0),
 	}
 }
 
 func (o *opCompleter) SetTabFilePath(filepathlist []string) {
 	//need a lock
+	//fmt.Println("start",filepathlist)
 	o.Pathlist = filepathlist
+	copy(o.Pathlist, filepathlist)
+	//fmt.Println("end",o.Pathlist)
 }
 
 func (o *opCompleter) doSelect() {
@@ -101,7 +107,16 @@ func (o *opCompleter) OnComplete() bool {
 		prompt := promptui.Select{
 			Label: "Select Your Worker file",
 			Items: o.Pathlist,
-			Size:  50,
+			Size:  10,
+			Searcher: func(input string, index int) bool {
+				node := o.Pathlist[index]
+				content := strings.ToLower(node)
+				input = strings.ToLower(input)
+				if strings.Contains(content, input) {
+					return true
+				}
+				return false
+			},
 		}
 
 		_, res, err := prompt.Run()
@@ -109,7 +124,8 @@ func (o *opCompleter) OnComplete() bool {
 			o.ExitCompleteMode(false)
 			return true
 		}
-
+		//fmt.Println(res)
+		buf.WriteRunes([]rune(" "))
 		buf.WriteRunes([]rune(res))
 		o.ExitCompleteMode(false)
 		return true

@@ -98,11 +98,13 @@ func (t *Terminal) Readline() *Operation {
 }
 
 func (t *Terminal) Readline1(pathlist []string) *Operation {
+	fmt.Println(pathlist)
 	return NewOperation(t, t.cfg, pathlist)
 }
 
 func (t *Terminal) AddPathlist(pathlist []string) {
-	t.PathList = pathlist
+	//t.PathList = pathlist
+	copy(t.PathList, pathlist)
 }
 
 // return rune(0) if meet EOF

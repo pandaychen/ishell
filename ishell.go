@@ -166,6 +166,8 @@ func (s *Shell) prepareRun() {
 	s.active = true
 	s.activeMutex.Unlock()
 
+	s.SetTabPath([]string{"a", "b", "c"})
+
 	s.haltChan = make(chan struct{})
 }
 

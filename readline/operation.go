@@ -86,6 +86,7 @@ func NewOperation(t *Terminal, cfg *Config, pathlist []string) *Operation {
 		op.buf.OnWidthChange(newWidth)
 	})
 	if len(pathlist) != 0 {
+		//fmt.Println("set",pathlist)
 		op.opCompleter.SetTabFilePath(pathlist)
 	}
 	go op.ioloop()
