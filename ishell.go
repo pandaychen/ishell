@@ -111,8 +111,8 @@ func (s *Shell) Start() {
 }
 
 // Run starts the shell and waits for it to stop.
-func (s *Shell) Run() {
-	s.prepareRun()
+func (s *Shell) Run(pathlist []string) {
+	s.prepareRun1(pathlist)
 	s.run()
 }
 
@@ -167,6 +167,21 @@ func (s *Shell) prepareRun() {
 	s.activeMutex.Unlock()
 
 	s.SetTabPath([]string{"a", "b", "c"})
+
+	s.haltChan = make(chan struct{})
+}
+
+func (s *Shell) prepareRun1(pathlist []string) {
+	if s.Active() {
+		return
+	}
+	if !s.customCompleter {
+		s.initCompleters()
+	}
+	s.activeMutex.Lock()
+	s.active = true
+	s.activeMutex.Unlock()
+	s.SetTabPath(pathlist)
 
 	s.haltChan = make(chan struct{})
 }

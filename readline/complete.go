@@ -44,7 +44,7 @@ type opCompleter struct {
 }
 
 func newOpCompleter(w io.Writer, op *Operation, width int) *opCompleter {
-	fmt.Println("once")
+	//fmt.Println("once")
 	return &opCompleter{
 		w:        w,
 		op:       op,

@@ -98,7 +98,7 @@ func (t *Terminal) Readline() *Operation {
 }
 
 func (t *Terminal) Readline1(pathlist []string) *Operation {
-	fmt.Println(pathlist)
+	//fmt.Println(pathlist)
 	return NewOperation(t, t.cfg, pathlist)
 }
 
